@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Web Dev Fire[base]</title>
+</head>
+<body>
+  <h1>Welcome To Our Chat Application</h1>
+  <input type="text" id="msg">
+  <input type="submit" id='submit'>
+  <input type="button" id='spitGame' value="Spit Game">
+  <div id="messages"></div>
+
+
+  <script src="https://cdn.firebase.com/js/client/2.3.0/firebase.js"></script>
+  <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.js"></script>
+  <script>
+    var firebase = new Firebase("https://webdev-firebase.firebaseio.com/");
+
+    $(document).ready(function() {
+      // firebase.push({username: "me", message: "Hello World"});
+
+      firebase.on('child_added', function(childSnapshot, prevChildKey) {
+        // code to handle new child.
+        var data = childSnapshot.val();
+        $("#messages").prepend("<p>" + data.message + "</p>");
+      });
+      $('#submit').click(function() {
+        var msg = $("#msg").val();
+        firebase.push({username: "me", message: msg});
+        $("#msg").val("");
+      });
+
+      $('#spitGame').click(function() {
+        $.ajax({
+          url: "http://pebble-pickup.herokuapp.com/tweets/random",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          error: function(e) {
+            console.log("You failed");
+          },
+          success: function(data) {
+            firebase.push({username: "me", message: data.tweet});
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
